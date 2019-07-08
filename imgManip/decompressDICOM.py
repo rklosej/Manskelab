@@ -10,7 +10,7 @@
 #
 # Requirements:
 #   -Python 3.4 or later
-#   -gdcm, gdcm-applications, argparse
+#   -gdcm, gdcm-applications
 #
 # Usage:
 #   decompressDICOM.py DICOM_FOLDER
@@ -22,6 +22,7 @@ import sys
 import subprocess
 import platform
 import argparse
+import errno
 
 def dir_path(string):
     if os.path.isdir(string):
@@ -42,7 +43,14 @@ args = parser.parse_args()
 inputDirectory = os.path.abspath(args.inputDirectory) + "/"
 outputDirectory = os.path.abspath(args.outputDirectory) + "/"
 
-os.mkdir(outputDirectory + "decompressed_DICOMs")
+# Try to create a directory for the decompressed DICOMs
+# Directory location by default is the current working directory (where this python script is located),
+# but it can also be set with an additional command line arguement
+try:
+    os.mkdir(outputDirectory + "decompressed_DICOMs")
+except OSError as e:
+    if e.errno != errno.EEXIST:     # Directory already exists error
+        raise
 
 print (inputDirectory)
 
@@ -53,9 +61,17 @@ for file in os.listdir(inputDirectory):
     # Check if we have a file
     if os.path.isfile(inputFile):
 
-        # Only decompress the DICOM files without a file extension
-        if "." not in os.fsdecode(file):
+        # Decompress the DICOM files without a file extension
+        if "." not in filename:
             outputFile = os.path.join(outputDirectory + "decompressed_DICOMs", filename + ".dcm")
+
+            # Just run the gdcmconv command on each file
+            command = "gdcmconv -w " + inputFile + " " + outputFile
+
+            os.system(command)
+
+        else if ".dcm" in filename:
+            outputFile = os.path.join(outputDirectory + "decompressed_DICOMs", filename)
 
             # Just run the gdcmconv command on each file
             command = "gdcmconv -w " + inputFile + " " + outputFile
