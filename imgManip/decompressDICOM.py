@@ -16,7 +16,7 @@
 #   decompressDICOM.py DICOM_FOLDER
 #----------------------------------------------------- 
 
-import gdcm
+#import gdcm
 import os
 import sys
 import subprocess
@@ -70,7 +70,7 @@ for file in os.listdir(inputDirectory):
 
             os.system(command)
 
-        else if ".dcm" in filename:
+        elif ".dcm" in filename:
             outputFile = os.path.join(outputDirectory + "decompressed_DICOMs", filename)
 
             # Just run the gdcmconv command on each file
