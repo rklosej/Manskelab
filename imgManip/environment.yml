@@ -1,6 +1,7 @@
 name: manskelab
 channels:
   - conda-forge
+  - anaconda
   - defaults
 dependencies:
   - alabaster=0.7.12=py37_0
