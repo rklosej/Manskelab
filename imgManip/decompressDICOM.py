@@ -10,72 +10,68 @@
 #
 # Requirements:
 #   -Python 3.4 or later
-#   -gdcm, gdcm-applications
+#   -gdcm, pydicom
 #
 # Usage:
-#   decompressDICOM.py DICOM_FOLDER
+#   decompressDICOM.py <COMPRESSED_DICOM_FOLDER>
+#
+# Notes:
+#   -The decompressed DICOM directory it will be created automatically
+#    in the compressed DICOM folder and will be named: decompressedDICOMs
 #----------------------------------------------------- 
 
-#import gdcm
+import pydicom
 import os
 import sys
-import subprocess
-import platform
-import argparse
 import errno
 
-def dir_path(string):
-    if os.path.isdir(string):
-        return string
-    else:
-        raise NotADirectoryError(string)
+inputPath = sys.argv[1]
 
-# Check the OS type (to handle correct slash directions in file paths)
-OS = platform.system()
+# Check if the provided directory exists
+if not os.path.exists(inputPath):
+    print ("Error: provided directory does not exist!")
+    sys.exit(1)
 
-# Read in the input DICOM directory
-parser = argparse.ArgumentParser()
-parser.add_argument("inputDirectory", type=dir_path, help="The input (compressed) DICOM directory")
-parser.add_argument("outputDirectory", type=dir_path, default=os.getcwd() ,help="The output (decompressed) DICOM directory")
-args = parser.parse_args()
+# Get the absolute path of the directory provided
+inputPathAbs = os.path.abspath(inputPath)
+outputPathAbs = inputPathAbs + "/decompressedDICOMs"
 
-# Make sure we use the absolute path!
-inputDirectory = os.path.abspath(args.inputDirectory) + "/"
-outputDirectory = os.path.abspath(args.outputDirectory) + "/"
-
-# Try to create a directory for the decompressed DICOMs
-# Directory location by default is the current working directory (where this python script is located),
-# but it can also be set with an additional command line arguement
+# Create the directory for decompressed DICOMs inside the compressed DICOM folder
 try:
-    os.mkdir(outputDirectory + "decompressed_DICOMs")
+    os.mkdir(outputPathAbs)
 except OSError as e:
     if e.errno != errno.EEXIST:     # Directory already exists error
         raise
 
-print (inputDirectory)
-
-for file in os.listdir(inputDirectory):
+# Loop through all DICOMs in the provided directory, rename and decompress
+for file in os.listdir(inputPathAbs):
     filename = os.fsdecode(file)
-    inputFile = os.path.join(inputDirectory, filename)
+    
+    currentFilePath = os.path.join(inputPathAbs, filename)
+
+    # TO-DO:
+    # Check transfer syntax tag in DICOM header to see if file is compressed or not
+    # If the file is already decompressed, skip it
 
     # Check if we have a file
-    if os.path.isfile(inputFile):
+    if os.path.isfile(currentFilePath):
 
-        # Decompress the DICOM files without a file extension
+        # Rename the DICOM file to include a file extension (if needed)
         if "." not in filename:
-            outputFile = os.path.join(outputDirectory + "decompressed_DICOMs", filename + ".dcm")
+            outputFilePath = os.path.join(outputPathAbs, filename + ".dcm")
 
-            # Just run the gdcmconv command on each file
-            command = "gdcmconv -w " + inputFile + " " + outputFile
+            print ("Decompressing file: " + filename)
 
-            os.system(command)
-
+            ds = pydicom.dcmread(currentFilePath)
+            ds.decompress()
+            ds.save_as(outputFilePath)
         elif ".dcm" in filename:
-            outputFile = os.path.join(outputDirectory + "decompressed_DICOMs", filename)
+            outputFile = os.path.join(outputPathAbs, filename)
 
-            # Just run the gdcmconv command on each file
-            command = "gdcmconv -w " + inputFile + " " + outputFile
+            print ("Decompressing file: " + filename)
 
-            os.system(command)
+            ds = pydicom.dcmread(currentFilePath)
+            ds.decompress()
+            ds.save_as(outputFile)
 
 print ("Done!")
