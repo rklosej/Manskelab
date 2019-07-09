@@ -64,14 +64,30 @@ for file in os.listdir(inputPathAbs):
 
             ds = pydicom.dcmread(currentFilePath)
             ds.decompress()
-            ds.save_as(outputFilePath)
+
+            # Save the decompressed file
+            try:
+                ds.save_as(outputFilePath)
+            except OSError as e:
+                if e.errno != errno.ENOENT:     # No such file or directory error
+                    print ("ERROR: No such file or directory named " + outputFilePath)
+                    raise
+
+        # For cases when we have compressed DICOMs with file extensions
         elif ".dcm" in filename:
-            outputFile = os.path.join(outputPathAbs, filename)
+            outputFilePath = os.path.join(outputPathAbs, filename)
 
             print ("Decompressing file: " + filename)
 
             ds = pydicom.dcmread(currentFilePath)
             ds.decompress()
-            ds.save_as(outputFile)
+
+            # Save the decompressed file
+            try:
+                ds.save_as(outputFilePath)
+            except OSError as e:
+                if e.errno != errno.ENOENT:     # No such file or directory error
+                    print ("ERROR: No such file or directory named " + outputFilePath)
+                    raise
 
 print ("Done!")
