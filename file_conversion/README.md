@@ -17,3 +17,8 @@ conda env create -f environment.yml
 ```
 
 This should work on all systems (Windows, Mac OSX, and Linux)
+
+You can then activate the environment with the following command:
+```
+conda activate manskelab-py2
+```
