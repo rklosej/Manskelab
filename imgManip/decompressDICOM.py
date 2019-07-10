@@ -13,7 +13,7 @@
 #   -gdcm, pydicom
 #
 # Usage:
-#   decompressDICOM.py <COMPRESSED_DICOM_FOLDER>
+#   python decompressDICOM.py <COMPRESSED_DICOM_FOLDER>
 #
 # Notes:
 #   -The decompressed DICOM directory it will be created automatically

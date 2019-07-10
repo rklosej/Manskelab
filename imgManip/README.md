@@ -11,5 +11,5 @@ conda env create -f environment.yml
 
 You can then activate the environment with:
 ```
-conda activate manskelab
+conda activate manskelab-py3
 ```
