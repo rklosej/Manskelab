@@ -21,22 +21,36 @@
 #-----------------------------------------------------
 
 import pydicom
+import argparse
 import os
 import sys
 import errno
+import platform
 
 from pydicom.errors import InvalidDicomError
 
-inputPath = sys.argv[1]
+parser = argparse.ArgumentParser()
+parser.add_argument("inputDirectory", type=str, help="The input DICOM directory (compressed files)")
+args = parser.parse_args()
+
+inputPath = args.inputDirectory
 
 # Check if the provided directory exists
 if not os.path.exists(inputPath):
     print ("Error: provided directory does not exist!")
     sys.exit(1)
 
+# Get the current system (e.g. Windows =  Windows, Mac OSX = Darwin, Linux = Linux)
+# Slashes in paths are different for Windows vs. Mac and Linux
+system = platform.system()
+
 # Get the absolute path of the directory provided
-inputPathAbs = os.path.abspath(inputPath)
-outputPathAbs = inputPathAbs + "/decompressedDICOMs"
+if system == "Windows":
+    inputPathAbs = os.path.abspath(inputPath)
+    outputPathAbs = inputPathAbs + "\\decompressedDICOMs"
+else:
+    inputPathAbs = os.path.abspath(inputPath)
+    outputPathAbs = inputPathAbs + "/decompressedDICOMs"
 
 # Create the directory for decompressed DICOMs inside the compressed DICOM folder
 try:
