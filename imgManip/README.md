@@ -1,5 +1,5 @@
 # Image Manipulation Software
-Collection of software to manipulate medical image data including file decompression and conversion
+Collection of software to manipulate medical image data including file decompression.
 
 ## Python Environment Setup
 The software in this directory require Python 3.4 or later and Anaconda.
