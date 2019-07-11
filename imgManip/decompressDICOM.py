@@ -29,6 +29,30 @@ import platform
 
 from pydicom.errors import InvalidDicomError
 
+# Just for fun :)
+# Print iterations progress
+def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        bar_length  - Optional  : character length of bar (Int)
+    """
+    str_format = "{0:." + str(decimals) + "f}"
+    percents = str_format.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+
+    if iteration == total:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
+
 parser = argparse.ArgumentParser()
 parser.add_argument("inputDirectory", type=str, help="The input DICOM directory (compressed files)")
 args = parser.parse_args()
@@ -58,6 +82,12 @@ try:
 except OSError as e:
     if e.errno != errno.EEXIST:     # Directory already exists error
         raise
+
+# Get the number of files in a directory for the progress bar
+l = len( [ name for name in os.listdir(inputPathAbs) if os.path.isfile( os.path.join(inputPathAbs, name) ) ] )
+
+# Counter for the progress bar
+i = 0
 
 # Loop through all DICOMs in the provided directory, rename and decompress
 for file in os.listdir(inputPathAbs):
@@ -90,8 +120,6 @@ for file in os.listdir(inputPathAbs):
         if "." not in filename:
             outputFilePath = os.path.join(outputPathAbs, filename + ".dcm")
 
-            print ("Decompressing file: " + filename)
-
             dicom.decompress()
 
             # Save the decompressed file
@@ -106,8 +134,6 @@ for file in os.listdir(inputPathAbs):
         elif ".dcm" in filename:
             outputFilePath = os.path.join(outputPathAbs, filename)
 
-            print ("Decompressing file: " + filename)
-
             dicom.decompress()
 
             # Save the decompressed file
@@ -117,5 +143,9 @@ for file in os.listdir(inputPathAbs):
                 if e.errno != errno.ENOENT:     # No such file or directory error
                     print ("ERROR: No such file or directory named " + outputFilePath)
                     raise
+
+        # Update progress bar
+        print_progress(i + 1, l, prefix = 'Progress:', suffix = 'Complete', bar_length = 50)
+        i = i + 1
 
 print ("Done!")
