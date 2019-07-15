@@ -53,6 +53,7 @@ def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_lengt
         sys.stdout.write('\n')
     sys.stdout.flush()
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("inputDirectory", type=str, help="The input DICOM directory (compressed files)")
 args = parser.parse_args()
@@ -64,17 +65,9 @@ if not os.path.exists(inputPath):
     print ("Error: provided directory does not exist!")
     sys.exit(1)
 
-# Get the current system (e.g. Windows =  Windows, Mac OSX = Darwin, Linux = Linux)
-# Slashes in paths are different for Windows vs. Mac and Linux
-system = platform.system()
-
-# Get the absolute path of the directory provided
-if system == "Windows":
-    inputPathAbs = os.path.abspath(inputPath)
-    outputPathAbs = inputPathAbs + "\\decompressedDICOMs"
-else:
-    inputPathAbs = os.path.abspath(inputPath)
-    outputPathAbs = inputPathAbs + "/decompressedDICOMs"
+# Get the absolute path of the directory provided. Use os.path.join() to avoid slash direction issues between Mac, Linux, and Windows
+inputPathAbs = os.path.abspath(inputPath)
+outputPathAbs = os.path.join(inputPathAbs, "decompressedDICOMs")
 
 # Create the directory for decompressed DICOMs inside the compressed DICOM folder
 try:
