@@ -38,8 +38,6 @@ import pydicom
 import argparse
 import platform
 
-from pydicom.errors import InvalidDicomError
-
 # Read in the input arguements
 parser = argparse.ArgumentParser()
 
@@ -95,11 +93,17 @@ if os.path.isdir(inputPathAbs) :
 
         resliceFilter = vtk.vtkImageReslice()
         resliceFilter.SetInputData(dicomImage)
+
+        # vtkDICOMReader always flips images bottom-to-top.
+        # In order to have a coordinate system defined at the top left corner we need to set the direction cosines.
+        # (i.e. the first pixel for each slice is the top left corner, and images are in ascending order)
+        resliceFilter.SetResliceAxesDirectionCosines(-1,0,0, 0,1,0, 0,0,1)
+
         resliceFilter.SetOutputSpacing(spacingX, spacingY, spacingZ)
         resliceFilter.SetInterpolationModeToCubic()
         resliceFilter.Update()
         imageResampled = resliceFilter.GetOutput()
-    
+
         writer = vtk.vtkNIFTIImageWriter()
         writer.SetFileName( str(outputFileName) ) 
         writer.SetInputData(imageResampled)
