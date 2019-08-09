@@ -42,15 +42,11 @@ outBasename, outExtension = os.path.splitext(outFilename)
 
 # Check the output file format
 if outExtension.lower() == ".mha" :
-    print ("Specified output file type: MHA.")
-    print ("No RAW file will be created as info integrated in image file.")
     outputImageFileName = os.path.join(outDirectory, outBasename + ".mha")
 elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
-    print ("Specified output file type: MHD/RAW.")
     outputImageFileName = os.path.join(outDirectory, outBasename + ".mhd")
     outputImageFileNameRAW = os.path.join(outDirectory, outBasename + ".raw")
 elif outExtension.lower() == ".nii" :
-    print ("Specified output file type: NII.")
     outputImageFileName = os.path.join(outDirectory, outBasename + ".nii")
 else :
     print ("Error: output file extension must be MHD, MHA, RAW, or NII")
@@ -107,17 +103,23 @@ elif os.path.isdir(inputImage) :
 
 # Setup the correct writer based on the output image extension
 if outExtension.lower() == ".mha" :
+    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
+    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetRAWFileName( str(outputImageFileNameRAW) )
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".nii" :
+    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+
     writer = vtk.vtkNIFTIImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetInputData(finalImage)
