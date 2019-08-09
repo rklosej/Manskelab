@@ -9,7 +9,17 @@ To setup a new environment with all packages needed for the software in this dir
 conda env create -f environment.yml
 ```
 
-You can then activate the environment with:
+Note that the above command only needs to be run ONCE when you first download this repository.
+
+## Running a Script
+To run any script in this repository, follow the steps below:
+
+1. Activate the environment with the following command:
 ```
 conda activate manskelab-py3
+```
+
+2. Run any script in this repository as follows:
+```
+python <PATH_TO_MANSKELAB_PYTHON_SCRIPT> <INPUT_PARAMETERS>
 ```
