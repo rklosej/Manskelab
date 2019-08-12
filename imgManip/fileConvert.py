@@ -103,14 +103,14 @@ elif os.path.isdir(inputImage) :
 
 # Setup the correct writer based on the output image extension
 if outExtension.lower() == ".mha" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
 
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
 
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
@@ -118,7 +118,7 @@ elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".nii" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
 
     writer = vtk.vtkNIFTIImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
