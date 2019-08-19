@@ -124,3 +124,5 @@ elif outExtension.lower() == ".nii" :
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetInputData(finalImage)
     writer.Write()
+
+print ("Done!")

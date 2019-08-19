@@ -19,6 +19,9 @@
 #   -The decompressed DICOM directory it will be created automatically
 #    in the compressed DICOM folder and will be named: decompressedDICOMs
 #-----------------------------------------------------
+#   TO-DO:
+#       -Change the DICOM header to reflect decompression
+#-----------------------------------------------------
 
 import pydicom
 import argparse

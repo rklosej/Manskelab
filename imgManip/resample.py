@@ -81,14 +81,14 @@ if os.path.isdir(inputPathAbs) :
 
         #Print some information about the image
         print ( "Dimensions:  " + str(dicomImage.GetDimensions()) )
-        print ( "Spacing:     " + str( round( dicomImage.GetSpacing()[0], 4 ) ) 
-                                + str( round( dicomImage.GetSpacing()[1], 4 ) ) 
-                                + str( round( dicomImage.GetSpacing()[2], 4 ) ) )
+        print ( "Spacing:     (" + str( round( dicomImage.GetSpacing()[0], 4 ) ) + ", "
+                                + str( round( dicomImage.GetSpacing()[1], 4 ) )  + ", "
+                                + str( round( dicomImage.GetSpacing()[2], 4 ) )  + ")" )
         print ( "Origin:      " + str(dicomImage.GetOrigin()) )
     
         print ( "\nResampling the input image. New image information will be:" )
         print ( "Dimensions:   " + str(dicomImage.GetDimensions()) )
-        print ( "Spacing:     (" + str(spacingX) + ", " + str(spacingY) + ", " + str(spacingZ) + ")" )
+        print ( "Spacing:      (" + str(spacingX) + ", " + str(spacingY) + ", " + str(spacingZ) + ")" )
         print ( "Origin:       " + str(dicomImage.GetOrigin()) )
 
         resliceFilter = vtk.vtkImageReslice()
@@ -97,7 +97,7 @@ if os.path.isdir(inputPathAbs) :
         # vtkDICOMReader always flips images bottom-to-top.
         # In order to have a coordinate system defined at the top left corner we need to set the direction cosines.
         # (i.e. the first pixel for each slice is the top left corner, and images are in ascending order)
-        resliceFilter.SetResliceAxesDirectionCosines(-1,0,0, 0,1,0, 0,0,1)
+        resliceFilter.SetResliceAxesDirectionCosines(-1,0,0, 0,1,0, 0,0,-1)
 
         resliceFilter.SetOutputSpacing(spacingX, spacingY, spacingZ)
         resliceFilter.SetInterpolationModeToCubic()
