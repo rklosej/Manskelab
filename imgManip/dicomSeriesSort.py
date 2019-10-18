@@ -100,9 +100,12 @@ for file in os.listdir(inputPathAbs):
         # Use the instance number located at [0x0020, 0x0013] to rename the images
         seriesDescription = str(dicom[0x0008, 0x103e].value).upper()
         instanceNumber = dicom[0x0020, 0x0013].value
+
+        # Make the instance number have the same number of digits for all images
+        instanceNumberString = str(instanceNumber).rjust(4, '0')
         
         seriesFilePath = os.path.join(inputPathAbs, seriesDescription)
-        newFileName = "IM_" + str(instanceNumber) + ".dcm"
+        newFileName = "IM_" + instanceNumberString + ".dcm"
 
         # Uncompressed Implicit VR Little-endian = 1.2.840.10008.1.2
         # Uncompressed Explicit VR Little-endian = 1.2.840.10008.1.2.1
