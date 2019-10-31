@@ -1,5 +1,5 @@
-# File Conversion
-A collection of software to convert file types.
+# manskelab-py2
+A collection of software to manipulate medical image files. All scripts/files in this directory require Python 2.
 
 Included file conversions:
 - .AIM to .NIfTI
@@ -18,8 +18,8 @@ Included file conversions:
 - Anaconda 
 
 
-## Python Environment Setup
-The software in this directory require Python 3.4 or later and Anaconda.
+## Anaconda Environment Setup
+The software in this directory require Python 2.7 (or later, but not Python 3!) and Anaconda.
 
 To setup a new environment with all packages needed for the software in this directory, run the command:
 ```
@@ -28,6 +28,20 @@ conda env create -f environment.yml
 
 Note that the above command only needs to be run ONCE when you first download this repository.
 
+## Issues Installing the Anaconda Environment
+If you have a newer version of Anaconda, you may receive errors (e.g. "Solving environment: failed") when attempting to setup the Anaconda environment shown above. Follow these steps to resolve the errors:
+
+1. Downgrade conda:
+
+```
+conda config --set allow_conda_downgrades true
+conda install conda=4.6.11
+```
+
+2. Install the environment:
+```
+conda env create -f environment.yml
+```
 
 ## Running a Script
 To run any script in this repository, follow the steps below:
