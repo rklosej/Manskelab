@@ -10,9 +10,11 @@ dependencies:
   - boost=1.70.0
   - boost-cpp=1.70.0
   - gdcm=2.8.4
+  - jupyterlab=1.2.5
   - matplotlib=3.1.2 
   - n88tools=8.1.0
   - n88util=2.0.0
+  - notebook=6.0.2
   - numpy=1.16.2
   - numpy-base=1.16.2
   - numpydoc=0.8.0
