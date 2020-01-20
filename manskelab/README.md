@@ -1,8 +1,8 @@
-# manskelab-py3
-Collection of software to manipulate medical image data. All scripts/files in this directory require Python 3.
+# manskelab
+Collection of software to manipulate medical image data. All scripts/files in this directory require Python 3.7.
 
 ## Anaconda Environment Setup
-The software in this directory require Python 3.4 or later and Anaconda.
+The software in this directory require Python 3.7 or later and Anaconda.
 
 To setup a new environment with all packages needed for the software in this directory, run the command:
 ```
@@ -29,9 +29,22 @@ conda env create -f environment.yml
 ## Running a Script
 To run any script in this repository, follow the steps below:
 
+ON WINDOWS:
 1. Activate the environment with the following command:
 ```
-conda activate manskelab-py3
+conda activate manskelab
+```
+
+2. Run any script in this repository as follows:
+```
+python <PATH_TO_MANSKELAB_PYTHON_SCRIPT> <INPUT_PARAMETERS>
+```
+
+
+ON MAC:
+1. Activate the environment with the following command:
+```
+source activate manskelab
 ```
 
 2. Run any script in this repository as follows:
