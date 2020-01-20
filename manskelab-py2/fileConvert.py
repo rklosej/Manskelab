@@ -54,7 +54,7 @@ elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
 elif outExtension.lower() == ".nii" :
     outputImageFileName = os.path.join(outDirectory, outBasename + ".nii")
 else :
-    print "Error: output file extension must be MHD, MHA, RAW, or NII"
+    print ("Error: output file extension must be MHD, MHA, RAW, or NII")
     sys.exit(1)
 
 # Check if the input is a DICOM series directory
@@ -121,7 +121,7 @@ if os.path.isfile(inputImage) :
 elif os.path.isdir(inputImage) :
     # Check if the directory exists
     if not os.path.exists(inputImage):
-        print "Error: DICOM directory does not exist!"
+        print ("Error: DICOM directory does not exist!")
         sys.exit(1)
     else :
         imageReader = vtk.vtkDICOMImageReader()
@@ -148,14 +148,14 @@ elif os.path.isdir(inputImage) :
 
 # Setup the correct writer based on the output image extension
 if outExtension.lower() == ".mha" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
 
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
 
     writer = vtk.vtkMetaImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 
@@ -163,7 +163,7 @@ elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
     writer.SetInputData(finalImage)
     writer.Write()
 elif outExtension.lower() == ".nii" :
-    print "Writing file: " + str(inputImage) + " to " + str(outputImage)
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
     
     writer = vtk.vtkNIFTIImageWriter()
     writer.SetFileName( str(outputImageFileName) ) 

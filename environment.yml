@@ -10,6 +10,7 @@ dependencies:
   - boost=1.70.0
   - boost-cpp=1.70.0
   - gdcm=2.8.4
+  - itk=5.0.1
   - jupyterlab=1.2.5
   - matplotlib=3.1.2 
   - n88tools=8.1.0
@@ -20,11 +21,10 @@ dependencies:
   - numpydoc=0.8.0
   - pillow=5.4.1
   - pip=19.3.1
-  - python=3.7.6
+  - python=3.6
   - pydicom=1.2.2
   - qt=5.9.7
   - simpleitk=1.2.4
-  - scipy=1.4.1
   - tk=8.6.10
   - vtk=8.2.0
   - vtkbone=1.1.0
