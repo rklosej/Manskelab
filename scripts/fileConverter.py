@@ -1,36 +1,55 @@
-# coding=utf-8
 #----------------------------------------------------- 
-# fileConvert.py
+# fileConverter.py
 #
 # Created by:   Michael Kuczynski
-# Created on:   2019.08.09
+# Created on:   21-01-2020
 #
 # Description: Converts between 3D image file formats.
 #              Currently supported conversions:
 #                   1. DICOM to NIfTI
 #                   2. DICOM to MHA
-#                   3. NIfTI to MHA
-#                   4. MHA to NIfTI
+#                   3. DICOM to AIM
+#                   4. NIfTI to MHA
+#                   5. NIfTI to AIM
+#                   6. NIfTI to DICOM
+#                   7. MHA to NIfTI
+#                   8. MHA to AIM
+#                   9. MHA to DICOM
+#                   10. AIM to NIfTI
+#                   11. AIM to MHA
+#                   12. AIM to DICOM
 #
-# Updated by: Michael Kuczynski
-# Updated on: 16-12-2019
-# Update notes: Now can convert to/from .AIM
+# Notes: File format conversion can be done using several different software libraries/packages. 
+# However, when reading in images, VTK does not store the image orientation, direction, or origin. 
+# This causes problems when trying to overlay images after conversion. ITK based libraries/packages 
+# (like SimpleITK) are able to maintain the original image orientation, direction, and origin.
+# Unfortunately, SimpleITK cannot read/write AIM files. vtkbone however, can. The quick solution to
+# these problems is to use SimpleITK for all image conversions except AIM and use vtkbone only for AIMs.
+#
+# Some useful links that explain image orientation, direction, and origin:
+#   -https://www.slicer.org/wiki/Coordinate_systems
+#   -https://discourse.vtk.org/t/proposal-to-add-orientation-to-vtkimagedata-feedback-wanted/120
+#   -http://www.itksnap.org/pmwiki/pmwiki.php?n=Documentation.DirectionMatrices
+#   -https://fromosia.wordpress.com/2017/03/10/image-orientation-vtk-itk/
 #
 #----------------------------------------------------- 
-#
-# Requirements:
-#   -Python 3.4 or greater
-#   -VTK 8.2.0 or later
-#
 # Usage:
-#   python fileConvert.py <inputImage.ext> <outputImage.ext>
+#   python fileConverter.py <inputImage.ext> <outputImage.ext>
 #-----------------------------------------------------
 
 import os
+import sys
+import time
+import argparse
+import numpy as np
+
+from util.sitk_vtk import sitk2vtk, vtk2sitk
+from util.img2dicom import img2dicom
+
 import vtk
 import vtkbone
-import sys
-import argparse
+
+import SimpleITK as sitk
 
 # Parse input arguments
 parser = argparse.ArgumentParser()
@@ -55,34 +74,22 @@ elif outExtension.lower() == ".nii" :
     outputImageFileName = os.path.join(outDirectory, outBasename + ".nii")
 elif outExtension.lower() == ".aim" :
     outputImageFileName = os.path.join(outDirectory, outBasename + ".aim")
+elif outExtension.lower() == ".dcm" :
+    outputImageFileName = os.path.join(outDirectory, outBasename + ".dcm")
 else :
     print ("Error: output file extension must be MHD, MHA, RAW, NII, or AIM")
     sys.exit(1)
 
 # Check if the input is a DICOM series directory
 if os.path.isfile(inputImage) :
+    # NOT DICOM SERIES
+
     # Extract directory, filename, basename, and extensions from the input image
     inDirectory, inFilename = os.path.split(inputImage)
     inBasename, inExtension = os.path.splitext(inFilename)
 
-    finalImage = vtk.vtkImageData()
-
     # Setup the correct reader based on the input image extension
-    if inExtension.lower() == ".mhd" or inExtension.lower() == ".raw" or inExtension.lower() == ".mha" :
-        imageReader = vtk.vtkMetaImageReader()
-        imageReader.SetFileName(inputImage)
-        imageReader.Update()  
-
-        finalImage = imageReader.GetOutput()
-
-    elif inExtension.lower() == ".nii" :
-        imageReader = vtk.vtkNIFTIImageReader()  
-        imageReader.SetFileName(inputImage)
-        imageReader.Update()  
-
-        finalImage = imageReader.GetOutput()
-
-    elif inExtension.lower() == ".aim" :
+    if inExtension.lower() == ".aim" :
         imageReader = vtkbone.vtkboneAIMReader()
         imageReader.SetFileName(inputImage)
         imageReader.DataOnCellsOff()
@@ -118,67 +125,52 @@ if os.path.isfile(inputImage) :
         caster.ReleaseDataFlagOff()
         caster.Update()
 
-        finalImage = caster.GetOutput()
+        vtk_image = caster.GetOutput()
+        sitk_image = vtk2sitk(vtk_image)
+    
+    else :
+        sitk_image = sitk.ReadImage(inputImage)
+        vtk_image = sitk2vtk(sitk_image)
 
 # Check if the input is a DICOM series directory
 elif os.path.isdir(inputImage) :
+    # DICOM DIRECTORY
+
     # Check if the directory exists
     if not os.path.exists(inputImage):
         print ("Error: DICOM directory does not exist!")
         sys.exit(1)
     else :
-        imageReader = vtk.vtkDICOMImageReader()
-        imageReader.SetDirectoryName(inputImage) 
-        imageReader.Update()  
+        reader = sitk.ImageSeriesReader()
 
-        # vtkDICOMReader always flips images bottom-to-top.
-        # In order to have a coordinate system defined at the top left corner we need to set the direction cosines.
-        # (i.e. the first pixel for each slice is the top left corner, and images are in ascending order)
-        resliceFilter = vtk.vtkImageReslice()
-        resliceFilter.SetInputConnection( imageReader.GetOutputPort() )
+        dicom_names = reader.GetGDCMSeriesFileNames( inputImage )
+        reader.SetFileNames( dicom_names )
 
-        # Direction cosines will be different for NIfTI vs. MHA!
-        if outExtension.lower() == ".mha" or outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
-            resliceFilter.SetResliceAxesDirectionCosines(1,0,0, 0,-1,0, 0,0,1)
-        elif outExtension.lower() == ".nii" :
-            resliceFilter.SetResliceAxesDirectionCosines(-1,0,0, 0,1,0, 0,0,1)
-
-        resliceFilter.SetInterpolationModeToCubic()
-        resliceFilter.Update()
-
-        finalImage = vtk.vtkImageData()
-        finalImage = resliceFilter.GetOutput()
+        sitk_image = reader.Execute()
+        vtk_image = sitk2vtk(sitk_image)
 
 # Setup the correct writer based on the output image extension
 if outExtension.lower() == ".mha" :
     print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
+    sitk.WriteImage(sitk_image, str(outputImageFileName))
 
-    writer = vtk.vtkMetaImageWriter()
-    writer.SetFileName( str(outputImageFileName) ) 
-    writer.SetInputData(finalImage)
-    writer.Write()
 elif outExtension.lower() == ".mhd" or outExtension.lower() == ".raw" :
     print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
+    sitk.WriteImage(sitk_image, str(outputImageFileName))
 
-    writer = vtk.vtkMetaImageWriter()
-    writer.SetFileName( str(outputImageFileName) ) 
-    writer.SetRAWFileName( str(outputImageFileNameRAW) )
-    writer.SetInputData(finalImage)
-    writer.Write()
 elif outExtension.lower() == ".nii" :
     print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
+    sitk.WriteImage(sitk_image, str(outputImageFileName))
 
-    writer = vtk.vtkNIFTIImageWriter()
-    writer.SetFileName( str(outputImageFileName) ) 
-    writer.SetInputData(finalImage)
-    writer.Write()
+elif outExtension.lower() == ".dcm" :
+    print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
+    img2dicom(sitk_image, outDirectory)
 
 elif outExtension.lower() == ".aim" :
     print ("Writing file: " + str(inputImage) + " to " + str(outputImage))
-
-    writer = vtkbone.vtkboneAIMWriter ()
+    writer = vtkbone.vtkboneAIMWriter()
     writer.SetFileName( str(outputImageFileName) ) 
-    writer.SetInputData(finalImage)
+    writer.SetInputData(vtk_image)
     writer.Write()
 
 print ("Done!")
